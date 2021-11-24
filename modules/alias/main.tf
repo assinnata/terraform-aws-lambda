@@ -108,3 +108,41 @@ resource "aws_lambda_permission" "qualified_alias_triggers" {
   source_account     = lookup(each.value, "source_account", null)
   event_source_token = lookup(each.value, "event_source_token", null)
 }
+
+
+resource "aws_lambda_event_source_mapping" "this" {
+  for_each = var.create && var.create_function && !var.create_layer && var.create_unqualified_alias_allowed_triggers ? var.event_source_mapping : tomap({})
+
+  function_name = aws_lambda_alias.existing[0].arn
+
+  event_source_arn = each.value.event_source_arn
+
+  batch_size                         = lookup(each.value, "batch_size", null)
+  maximum_batching_window_in_seconds = lookup(each.value, "maximum_batching_window_in_seconds", null)
+  enabled                            = lookup(each.value, "enabled", null)
+  starting_position                  = lookup(each.value, "starting_position", null)
+  starting_position_timestamp        = lookup(each.value, "starting_position_timestamp", null)
+  parallelization_factor             = lookup(each.value, "parallelization_factor", null)
+  maximum_retry_attempts             = lookup(each.value, "maximum_retry_attempts", null)
+  maximum_record_age_in_seconds      = lookup(each.value, "maximum_record_age_in_seconds", null)
+  bisect_batch_on_function_error     = lookup(each.value, "bisect_batch_on_function_error", null)
+  topics                             = lookup(each.value, "topics", null)
+  queues                             = lookup(each.value, "queues", null)
+
+  dynamic "destination_config" {
+    for_each = lookup(each.value, "destination_arn_on_failure", null) != null ? [true] : []
+    content {
+      on_failure {
+        destination_arn = each.value["destination_arn_on_failure"]
+      }
+    }
+  }
+
+  dynamic "source_access_configuration" {
+    for_each = lookup(each.value, "source_access_configuration", [])
+    content {
+      type = source_access_configuration.value["type"]
+      uri  = source_access_configuration.value["uri"]
+    }
+  }
+}
