@@ -112,6 +112,18 @@ variable "destination_on_success" {
 # Lambda Permissions (for allowed triggers)
 ############################################
 
+variable "create_current_version_allowed_triggers" {
+  description = "Whether to allow triggers on current version of Lambda Function (this will revoke permissions from previous version because Terraform manages only current resources)"
+  type        = bool
+  default     = true
+}
+
+variable "create_unqualified_alias_allowed_triggers" {
+  description = "Whether to allow triggers on unqualified alias pointing to $LATEST version"
+  type        = bool
+  default     = true
+}
+
 variable "allowed_triggers" {
   description = "Map of allowed triggers to create Lambda permissions"
   type        = map(any)
