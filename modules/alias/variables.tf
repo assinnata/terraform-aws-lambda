@@ -4,6 +4,18 @@ variable "create" {
   default     = true
 }
 
+variable "create_function" {
+  description = "Controls whether Lambda Function resource should be created"
+  type        = bool
+  default     = true
+}
+
+variable "create_layer" {
+  description = "Controls whether Lambda Layer resource should be created"
+  type        = bool
+  default     = false
+}
+
 variable "use_existing_alias" {
   description = "Whether to manage existing alias instead of creating a new one. Useful when using this module together with external tool do deployments (eg, AWS CodeDeploy)."
   type        = bool
